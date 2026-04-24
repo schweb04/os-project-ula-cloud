@@ -26,5 +26,22 @@ int spawn_service(int index) {
     // - Lógica del proceso HIJO (Setup de límites y Ejecución).
     // - Lógica del proceso PADRE (Gestión del dashboard).
 
-    return 0; // Cambiar por el PID real
+    //return 0; // Cambiar por el PID real
+    
+    pid = fork();
+
+    if (pid == -1)
+    {
+        perror("No se pudo crear un nuevo proceso");
+    }
+    else if (pid == 0)
+    {
+        apply_resource_limits(DEFAULT_MEM_LIMIT);
+    }
+    else
+    {
+
+    }
+    
+    return pid;
 }
