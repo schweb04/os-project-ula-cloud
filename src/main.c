@@ -31,6 +31,33 @@ void print_dashboard() {
     printf("--------------------------------------------------------------\n");
 
     // TODO: Renderizar cada fila del dashboard con la información actualizada.
+    pthread_mutex_lock(&dashboard_mutex); // Bloquear el mutex para lectura segura
+    for (int i = 0; i < num_services; i++) {
+        service_t *svc = &dashboard[i];
+        const char *state_str;
+        switch (svc->state) {
+            case STATE_IDLE: 
+                state_str = "IDLE"; 
+                break;
+            case STATE_RUNNING: 
+                state_str = "RUNNING"; 
+                break;
+            case STATE_CRASHED: 
+                state_str = "CRASHED"; 
+                break;
+            case STATE_KILLED: 
+                state_str = "KILLED"; 
+                break;
+            case STATE_STOPPED: 
+                state_str = "STOPPED"; 
+                break;
+            default: 
+                state_str = "UNKNOWN"; 
+                break;
+        }
+        printf("%-15s %-10d %-15s %-10d\n", svc->name, svc->pid, state_str, svc->exit_status);
+    }
+    pthread_mutex_unlock(&dashboard_mutex);
 
     printf("==============================================================\n");
 }
