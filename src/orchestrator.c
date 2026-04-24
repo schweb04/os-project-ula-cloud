@@ -37,10 +37,18 @@ int spawn_service(int index) {
     else if (pid == 0)
     {
         apply_resource_limits(DEFAULT_MEM_LIMIT);
+        execl(dashboard[index].path, (char *)NULL); //Como último argumento, se usa NULL para indicar el final de los argumentos adicionales (no hay).
+
+        //Si execl falla, se ejecuta el siguiente código:
+        perror("Error al ejecutar el servicio");
+        exit(EXIT_FAILURE);
     }
     else
     {
-
+        pthread_mutex_lock(&dashboard_mutex); //Bloquear el mutex para actualizar el dashboard de forma segura
+        dashboard[index].pid = pid;
+        dashboard[index].state = STATE_RUNNING;
+        pthread_mutex_unlock(&dashboard_mutex);
     }
     
     return pid;
