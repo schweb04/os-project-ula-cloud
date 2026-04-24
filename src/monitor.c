@@ -32,5 +32,27 @@ void* monitor_service(void *arg) {
      * No olvides liberar el mecanismo de sincronización al terminar.
      */
 
-    return NULL;
+    //return NULL;
+    service_t *svc = (service_t *)arg;
+    int status;
+    waitpid(svc->pid, &status, 0); // El argumento options se establece en 0 para indicar que el padre tiene que esperar hasta que el hijo termine
+
+    service_state_t new_state;
+    int new_exit_status;
+    
+    if (WIFEXITED(status)) {
+        new_state = STATE_STOPPED;
+        new_exit_status = WEXITSTATUS(status);
+    } else if (WIFSIGNALED(status)) {
+        new_state = STATE_KILLED;
+        new_exit_status = WTERMSIG(status);
+    } else {
+        new_state = STATE_CRASHED;
+        new_exit_status = status;
+    }
+    
+    pthread_mutex_lock(&dashboard_mutex); // Bloquear el mutex para actualización segura
+    svc->state = new_state;
+    svc->exit_status = new_exit_status;
+    pthread_mutex_unlock(&dashboard_mutex);
 }
