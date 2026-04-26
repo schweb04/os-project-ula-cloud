@@ -55,4 +55,6 @@ void* monitor_service(void *arg) {
     svc->state = new_state;
     svc->exit_status = new_exit_status;
     pthread_mutex_unlock(&dashboard_mutex);
+
+    return NULL;
 }

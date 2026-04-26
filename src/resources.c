@@ -19,7 +19,10 @@ void apply_resource_limits(size_t mem_limit) {
     // - ¿Qué sucede si el límite solicitado es menor al tamaño del propio binario?
 
     struct rlimit *limit;
-    limit->rlim_cur = limit->rlim_max = mem_limit; //si la memoria del proceso sobrepasa a rlim_cur, el proceso sigue vivo; mientras que si sobrepasa a rlim_max, se mata al proceso
+    limit->rlim_cur = limit->rlim_max = mem_limit; // rlim_cur es el valor que el kernel impone para el recurso correspondiente.
+    // rlim_max actúa como un techo para el límite suave.
+    // rlim_cur puede modificarse a cualquier valor menor o igual a rlim_max. rlim_max puede disminuirse a cualquier valor mayor o igual a rlim_cur. 
+    // Solo un proceso con privilegios adecuados puede aumentar el límite duro.
     int success = setrlimit(RLIMIT_AS, limit); //APH
 
     if (success == -1)
