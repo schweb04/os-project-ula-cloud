@@ -37,9 +37,9 @@ int spawn_service(int index) {
     else if (pid == 0)
     {
         apply_resource_limits(DEFAULT_MEM_LIMIT);
-        execl(dashboard[index].path, (char *)NULL); //Como último argumento, se usa NULL para indicar el final de los argumentos adicionales (no hay).
-
-        //Si execl falla, se ejecuta el siguiente código:
+        execvp(dashboard[index].path, NULL); // //Como último argumento, se usa NULL para indicar el final de los argumentos adicionales (no hay).
+        
+        //Si execvp falla, se ejecuta el siguiente código:
         perror("Error al ejecutar el servicio");
         exit(EXIT_FAILURE);
     }
@@ -49,6 +49,11 @@ int spawn_service(int index) {
         dashboard[index].pid = pid;
         dashboard[index].state = STATE_RUNNING;
         pthread_mutex_unlock(&dashboard_mutex);
+
+        // Como el proceso hijo ya ha sido lanzado, se inicia el hilo monitor desde el proceso padre
+        if (pthread_create(&dashboard[index].monitor_thread, NULL, monitor_service, &dashboard[index]) != 0) {
+            perror("Error al crear el hilo monitor");
+        }
     }
     
     return pid;
