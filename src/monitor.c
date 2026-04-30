@@ -33,7 +33,11 @@ void* monitor_service(void *arg) {
      */
 
     //return NULL;
-    pthread_detach(pthread_self()); // El hilo monitor se auto-desprende para liberar recursos automáticamente al finalizar
+    // El hilo monitor se auto-desprende para liberar recursos automáticamente al finalizar
+    if (pthread_detach(pthread_self()) != 0) {
+        perror("Error al desprender el hilo monitor");
+        return NULL;
+    }
 
     service_t *svc = (service_t *)arg;
     int status;
