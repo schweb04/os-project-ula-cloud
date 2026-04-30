@@ -36,12 +36,15 @@ int spawn_service(int index) {
     }
     else if (pid == 0)
     {
-        apply_resource_limits(DEFAULT_MEM_LIMIT);
-        execvp(dashboard[index].path, NULL); // //Como último argumento, se usa NULL para indicar el final de los argumentos adicionales (no hay).
+        apply_resource_limits(dashboard[index].mem_limit);
+        // Si RLIMIT_AS es menor al tamaño del propio binario, el proceso hijo no podrá ejecutarse correctamente y fallará al intentar cargar el binario en memoria. 
+        char *argv[] = {dashboard[index].path, NULL}; // No se pasan argumentos adicionales al servicio
+        execvp(argv[0], argv);
+        //El kernel no permitirá que el proceso exceda el límite de memoria establecido, lo que resultará en un error de asignación de memoria (ENOMEM) o un fallo similar al intentar ejecutar el binario.
         
         //Si execvp falla, se ejecuta el siguiente código:
         perror("Error al ejecutar el servicio");
-        exit(EXIT_FAILURE);
+        //exit(EXIT_FAILURE);
     }
     else
     {
@@ -49,11 +52,6 @@ int spawn_service(int index) {
         dashboard[index].pid = pid;
         dashboard[index].state = STATE_RUNNING;
         pthread_mutex_unlock(&dashboard_mutex);
-
-        // Como el proceso hijo ya ha sido lanzado, se inicia el hilo monitor desde el proceso padre
-        if (pthread_create(&dashboard[index].monitor_thread, NULL, monitor_service, &dashboard[index]) != 0) {
-            perror("Error al crear el hilo monitor");
-        }
     }
     
     return pid;

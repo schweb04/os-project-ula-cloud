@@ -18,12 +18,14 @@ void apply_resource_limits(size_t mem_limit) {
     // - ¿Qué diferencia hay entre rlim_cur y rlim_max?
     // - ¿Qué sucede si el límite solicitado es menor al tamaño del propio binario?
 
-    struct rlimit *limit;
-    limit->rlim_cur = limit->rlim_max = mem_limit; // rlim_cur es el valor que el kernel impone para el recurso correspondiente.
-    // rlim_max actúa como un techo para el límite suave.
+    struct rlimit limit;
+    limit.rlim_cur = mem_limit;
+    limit.rlim_max = mem_limit;
+    // rlim_cur es el valor que el kernel impone para el recurso correspondiente.
+    // rlim_max actúa como un techo para rlim_cur.
     // rlim_cur puede modificarse a cualquier valor menor o igual a rlim_max. rlim_max puede disminuirse a cualquier valor mayor o igual a rlim_cur. 
-    // Solo un proceso con privilegios adecuados puede aumentar el límite duro.
-    int success = setrlimit(RLIMIT_AS, limit); //APH
+    // Solo un proceso con privilegios adecuados puede aumentar rlim_max.
+    int success = setrlimit(RLIMIT_AS, &limit); // RLIMIT_AS limita el tamaño total del espacio de direccionamiento virtual del proceso, incluyendo código, datos, pila y memoria compartida.
 
     if (success == -1)
     {

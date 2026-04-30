@@ -41,7 +41,11 @@ void* monitor_service(void *arg) {
     int new_exit_status;
     
     if (WIFEXITED(status)) {
-        new_state = STATE_STOPPED;
+        if (WEXITSTATUS(status) == 0) {
+            new_state = STATE_STOPPED;
+        } else {
+            new_state = STATE_CRASHED;
+        }
         new_exit_status = WEXITSTATUS(status);
     } else if (WIFSIGNALED(status)) {
         new_state = STATE_KILLED;
