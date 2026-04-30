@@ -44,7 +44,6 @@ int spawn_service(int index) {
         
         //Si execvp falla, se ejecuta el siguiente código:
         perror("Error al ejecutar el servicio");
-        //exit(EXIT_FAILURE);
     }
     else
     {

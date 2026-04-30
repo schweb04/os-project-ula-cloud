@@ -33,6 +33,8 @@ void* monitor_service(void *arg) {
      */
 
     //return NULL;
+    pthread_detach(pthread_self()); // El hilo monitor se auto-desprende para liberar recursos automáticamente al finalizar
+
     service_t *svc = (service_t *)arg;
     int status;
     waitpid(svc->pid, &status, 0); // El argumento options se establece en 0 para indicar que el padre tiene que esperar hasta que el hijo termine
